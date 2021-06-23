@@ -1,55 +1,32 @@
-group 'com.squareup.sqip.flutter'
-version '1.4.0'
-
 buildscript {
+    ext.kotlin_version = '1.3.50'
     repositories {
         google()
         jcenter()
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.2.1'
+        classpath 'com.android.tools.build:gradle:4.1.0'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        
     }
 }
 
-rootProject.allprojects {
+allprojects {
     repositories {
         google()
         jcenter()
-        maven {
-            url 'https://sdk.squareup.com/public/android'
-        }
     }
 }
 
-apply plugin: 'com.android.library'
-
-def MIN_IAP_SDK_VERSION = '1.4.0'
-def COMPILE_SDK_VERSION = 28
-def TARGET_SDK_VERSION = 28
-
-android {
-    def sqipCompileSdkVersion = rootProject.hasProperty('sqipCompileSdkVersion') ? rootProject.sqipCompileSdkVersion : COMPILE_SDK_VERSION
-    def sqipTargetSdkVersion = rootProject.hasProperty('sqipTargetSdkVersion') ? rootProject.sqipTargetSdkVersion : TARGET_SDK_VERSION
-    compileSdkVersion sqipCompileSdkVersion
-
-    defaultConfig {
-        minSdkVersion 21
-        targetSdkVersion sqipTargetSdkVersion
-    }
-    lintOptions {
-        disable 'InvalidPackage'
-    }
-    compileOptions {
-        sourceCompatibility = 1.8
-        targetCompatibility = 1.8
-    }
+rootProject.buildDir = '../build'
+subprojects {
+    project.buildDir = "${rootProject.buildDir}/${project.name}"
+}
+subprojects {
+    project.evaluationDependsOn(':app')
 }
 
-dependencies {
-    def sqipVersion = rootProject.hasProperty('sqipVersion') ? rootProject.sqipVersion : MIN_IAP_SDK_VERSION
-    implementation "com.squareup.sdk.in-app-payments:card-entry:$sqipVersion"
-    implementation "com.squareup.sdk.in-app-payments:google-pay:$sqipVersion"
-    implementation 'com.google.android.gms:play-services-wallet:16.0.1'
-    implementation "com.squareup.sdk.in-app-payments:buyer-verification:$sqipVersion"
+task clean(type: Delete) {
+    delete rootProject.buildDir
 }
